@@ -3,15 +3,14 @@ import './Login.css';
 import { Redirect } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Helmet } from 'react-helmet';
-// import axios from 'axios';
+import axios from 'axios';
 
-class Login extends React.PureComponent {
+class Login extends React.Component {
   state = {
     user: {
       username: '',
       password: ''
     },
-    data: '',
     error: '',
     success: false
   }
@@ -21,27 +20,21 @@ class Login extends React.PureComponent {
   }
 
   handleOnClick = () => {
-    console.log(this.state.user);
-    // const {user} = this.state;
-    // const api = ``;
-    // axios.get(api, {user})
-    //   .then(res => {
-    //     const data = res.data;
-    //     this.setState({ data });
-    //   });
-    const data = {
-      success: true,
-      token: 'abcd',
-    };
-
-    if (data.success) {
-      const expires = (data.token || 60 * 60) * 10;
-      const inOneHour = new Date(new Date().getTime() + expires);
-      Cookies.set('token', data.token, { expires: inOneHour })
-      this.setState({ success: true });
-    } else {
-      this.setState({ error: 'Username/Password is incorrect' });
-    }
+    const { user } = this.state;
+    const api = `https://localhost:3777`;
+    axios.get(api, { params: user })
+      .then(res => {
+        const data = res.data;
+        if (data.success) {
+          const expires = (data.token || 60 * 60) * 10;
+          const inOneHour = new Date(new Date().getTime() + expires);
+          Cookies.set('token', data.token, { expires: inOneHour });
+          this.setState({ success: true });
+        } else {
+          this.setState({ error: 'Username/Password is incorrect' });
+        }
+      });
+    console.log(this.state.success, this.state.error);
   }
 
   handleOnChange = (value, type) => {
@@ -71,7 +64,7 @@ class Login extends React.PureComponent {
         </Helmet>
         <div className="form" id="form">
           <h2>Login</h2>
-          <form>
+          <div>
             <div className="input">
               <input
                 type="text"
@@ -92,7 +85,7 @@ class Login extends React.PureComponent {
               <button onClick={this.handleOnClick} disabled={disabled}>Submit</button>
               <span>{this.state.error && this.state.error}</span>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     );
